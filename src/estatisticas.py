@@ -23,9 +23,3 @@ def calcular_estatisticas(grafo):
     }
     return estatisticas
 
-if __name__ == "__main__":
-    caminho = "../instances/arquivo.dat"  # ajuste o caminho conforme necessário
-    grafo = carregar_grafo(caminho)
-    stats = calcular_estatisticas(grafo)
-    for chave, valor in stats.items():
-        print(f"{chave}: {valor}")
