@@ -1,4 +1,5 @@
 import sys
+import os
 
 class Grafo:
     def __init__(self):
@@ -17,20 +18,20 @@ class Grafo:
         current_section = "header"
         for linha in linhas:
             linha = linha.strip()
-            if not linha:
+            if not linha or linha.startswith('#'):
                 continue
 
             # Detecção de seções
-            if linha.startswith("ReN."):
+            if linha.startswith("ReN"):
                 current_section = "ReN"
                 continue
-            elif linha.startswith("ReE."):
+            elif linha.startswith("ReE"):
                 current_section = "ReE"
                 continue
             elif linha.startswith(("EDGE", "NrE")):
                 current_section = "EDGE"
                 continue
-            elif linha.startswith("ReA."):
+            elif linha.startswith("ReA"):
                 current_section = "ReA"
                 continue
             elif linha.startswith(("ARC", "NrA")):
@@ -45,14 +46,22 @@ class Grafo:
             
             elif current_section == "ReN":
                 tokens = linha.split()
-                if len(tokens) < 3 or not (tokens[0].startswith("N") or tokens[0].isdigit()):
+                if len(tokens) < 3:
                     continue
                 try:
-                    node = int(tokens[0][1:] if tokens[0].startswith("N") else tokens[0])
-                    demand = float(tokens[1])
-                    s_cost = float(tokens[2])
-                    self.vertices_requeridos.add(node)
-                    self.vertices.add(node)
+                    # Verificar se o primeiro token começa com 'N' ou é um número
+                    if tokens[0].startswith("N"):
+                        node = int(tokens[0][1:])
+                    else:
+                        # Tentar converter diretamente para inteiro
+                        node = int(tokens[0])
+                    
+                    # Garantir que temos pelo menos demanda e custo
+                    if len(tokens) >= 3:
+                        demand = float(tokens[1])
+                        s_cost = float(tokens[2])
+                        self.vertices_requeridos.add(node)
+                        self.vertices.add(node)
                 except (ValueError, IndexError):
                     continue
                 
@@ -127,6 +136,11 @@ class Grafo:
                     self.vertices.update([from_node, to_node])
                 except (ValueError, IndexError):
                     continue
+        
+        # Garantir que o depósito esteja incluído nos vértices
+        if 'Depot Node' in self.info:
+            deposito = int(self.info['Depot Node'])
+            self.vertices.add(deposito)
 
     # Métodos para estatísticas
     def qtd_vertices(self):
