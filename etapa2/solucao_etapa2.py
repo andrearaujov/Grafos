@@ -1,6 +1,7 @@
+import os
 import sys
 import time
-import os
+import glob
 sys.path.append(os.path.abspath('../etapa1/src'))
 
 from grafo import Grafo
@@ -216,31 +217,81 @@ class SolucaoConstrutiva:
             
         return "\n".join(saida)
 
-def main():
-    if len(sys.argv) != 2:
-        print("Uso: python solucao_final.py <arquivo.dat>")
-        sys.exit(1)
+def processar_arquivo(arquivo_dat, pasta_saida):
+    """Processa um arquivo .dat e salva o resultado na pasta de saída."""
+    try:
+        # Extrair o nome base do arquivo
+        nome_base = os.path.basename(arquivo_dat)
         
-    arquivo = sys.argv[1]
+        # Carregar grafo
+        g = Grafo()
+        g.ler_dat(arquivo_dat)
+        
+        # Obter capacidade do veículo do arquivo
+        capacidade = 5  # Valor padrão
+        with open(arquivo_dat, 'r') as f:
+            for linha in f:
+                if linha.startswith("Capacity:"):
+                    capacidade = int(linha.split(":")[1].strip())
+                    break
+        
+        # Construir solução
+        solucao = SolucaoConstrutiva(g, capacidade)
+        solucao.construir_solucao()
+        
+        # Formatar saída
+        resultado = solucao.formatar_saida()
+        
+        # Criar arquivo de saída
+        arquivo_saida = os.path.join(pasta_saida, f"sol-{nome_base}")
+        with open(arquivo_saida, 'w') as f:
+            f.write(resultado)
+        
+        print(f"Processado: {nome_base} -> {arquivo_saida}")
+        return True
+    except Exception as e:
+        print(f"Erro ao processar {arquivo_dat}: {str(e)}")
+        return False
+
+def main():
+    # Verificar argumentos
+    if len(sys.argv) != 2:
+        print("Uso: python processar_todos.py <pasta_dados>")
+        sys.exit(1)
     
-    # Carregar grafo
-    g = Grafo()
-    g.ler_dat(arquivo)
+    pasta_dados = sys.argv[1]
     
-    # Obter capacidade do veículo do arquivo
-    capacidade = 5  # Valor padrão
-    with open(arquivo, 'r') as f:
-        for linha in f:
-            if linha.startswith("Capacity:"):
-                capacidade = int(linha.split(":")[1].strip())
-                break
+    # Verificar se a pasta existe
+    if not os.path.isdir(pasta_dados):
+        print(f"Erro: A pasta {pasta_dados} não existe.")
+        sys.exit(1)
     
-    # Construir solução
-    solucao = SolucaoConstrutiva(g, capacidade)
-    solucao.construir_solucao()
+    # Criar pasta de saída G3Result se não existir
+    pasta_saida = "G3Result"
+    if not os.path.exists(pasta_saida):
+        os.makedirs(pasta_saida)
+        print(f"Pasta {pasta_saida} criada.")
     
-    # Imprimir solução
-    print(solucao.formatar_saida())
+    # Encontrar todos os arquivos .dat na pasta
+    arquivos_dat = glob.glob(os.path.join(pasta_dados, "*.dat"))
+    
+    if not arquivos_dat:
+        print(f"Nenhum arquivo .dat encontrado em {pasta_dados}")
+        sys.exit(1)
+    
+    print(f"Encontrados {len(arquivos_dat)} arquivos .dat para processar.")
+    
+    # Processar cada arquivo
+    sucessos = 0
+    falhas = 0
+    
+    for arquivo in arquivos_dat:
+        if processar_arquivo(arquivo, pasta_saida):
+            sucessos += 1
+        else:
+            falhas += 1
+    
+    print(f"\nProcessamento concluído: {sucessos} arquivos processados com sucesso, {falhas} falhas.")
 
 if __name__ == "__main__":
     main()
