@@ -1,4 +1,3 @@
-# src/estatisticas.py
 
 import sys
 from grafo import Grafo
