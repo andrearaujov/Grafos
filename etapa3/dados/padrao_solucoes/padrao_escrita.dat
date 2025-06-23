@@ -1,0 +1,17 @@
+custo total da solução
+total de rotas
+total de clocks para a execução do algoritmo referência
+total de clocks para encontrar a solução referência
+ índice_do_depósito(sempre zero) dia_da_roteirização(no nosso caso, sempre 1) identificador_da_rota(começando por 1) demanda_total_da_rota custo_total_da_rota total_de_visitas(quantidade de visitas ao depósito + quantidade de visitas aos serviços) (X i,j,k) ...
+ ...
+ 
+ Observações:
+ 
+ 1) A tripla (X i,j,k) indica as seguintes informações:
+ 	- Se a rota está no vértice depósito, então tem-se (D 0,1,1)
+ 	- Se a rota está em um serviço, então tem-se (S id_serviço,exterminadade_serviço,outra_extermidade_do_servico).
+ 	- Por exemplo: o serviço 2 do arquivo BHW1.dat corresponde ao nó requerido "N3	1	1". Logo, essa tripla na rota deve ser impresso assim: (S 2,3,3).
+ 	- Outro exemplo: o serviço 14 do arquivo BHW1.dat corresponde à aresta requerida "E7	7	8	8	1	9". Logo, essa tripla na rota deve ser impressa assim: (S 14,7,8), se o deslocamento tiver sendo feito do nó 7 para o nó 8.
+ 	- Último exemplo: o serviço 26 do arquivo BHW1.dat corresponde ao arco requerido "A8	7	6	4	1	5". Logo, essa tripla na rota deve ser impressa assim: (S 26,7,6), se o deslocamento tiver sendo feito do nó 7 para o nó 6.
+ 	
+2) Só serão impressos as informações das visitas dos serviços nas rotas.
