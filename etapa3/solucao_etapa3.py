@@ -1,10 +1,10 @@
-import math
 import os
 import sys
 import time
 import glob
 import random
 import copy
+import math  # Importação explícita do módulo math
 sys.path.append(os.path.abspath('../etapa1/src'))
 
 from grafo import Grafo
@@ -444,133 +444,15 @@ class SolucaoMelhorada:
             
             iteracao += 1
     
-    def aplicar_simulated_annealing(self, temperatura_inicial=100, taxa_resfriamento=0.95, iteracoes_por_temperatura=100, temperatura_minima=0.1):
-        """Aplica o algoritmo Simulated Annealing para melhorar a solução."""
-        melhor_solucao = copy.deepcopy(self.rotas)
-        melhor_custo = self.custo_total
-        
-        temperatura = temperatura_inicial
-        
-        while temperatura > temperatura_minima:
-            for _ in range(iteracoes_por_temperatura):
-                # Escolher um movimento aleatório
-                tipo_movimento = random.choice(['2opt', 'realocacao_intra', 'troca_entre', 'realocacao_entre'])
-                
-                if tipo_movimento == '2opt':
-                    # Escolher uma rota aleatória
-                    if not self.rotas:
-                        continue
-                    
-                    i = random.randint(0, len(self.rotas) - 1)
-                    
-                    # Aplicar 2-opt
-                    nova_rota, _ = self._aplicar_2opt_intra_rota(self.rotas[i])
-                    
-                    # Calcular diferença de custo
-                    delta_custo = nova_rota['custo_total'] - self.rotas[i]['custo_total']
-                    
-                    # Decidir se aceita o movimento
-                    if delta_custo < 0 or random.random() < math.exp(-delta_custo / temperatura):
-                        self.rotas[i] = nova_rota
-                        self._recalcular_custo_total()
-                
-                elif tipo_movimento == 'realocacao_intra':
-                    # Escolher uma rota aleatória
-                    if not self.rotas:
-                        continue
-                    
-                    i = random.randint(0, len(self.rotas) - 1)
-                    
-                    # Aplicar realocação
-                    nova_rota, _ = self._aplicar_realocacao_intra_rota(self.rotas[i])
-                    
-                    # Calcular diferença de custo
-                    delta_custo = nova_rota['custo_total'] - self.rotas[i]['custo_total']
-                    
-                    # Decidir se aceita o movimento
-                    if delta_custo < 0 or random.random() < math.exp(-delta_custo / temperatura):
-                        self.rotas[i] = nova_rota
-                        self._recalcular_custo_total()
-                
-                elif tipo_movimento == 'troca_entre':
-                    # Escolher duas rotas aleatórias
-                    if len(self.rotas) < 2:
-                        continue
-                    
-                    i = random.randint(0, len(self.rotas) - 1)
-                    j = random.randint(0, len(self.rotas) - 1)
-                    
-                    while j == i:
-                        j = random.randint(0, len(self.rotas) - 1)
-                    
-                    # Aplicar troca entre rotas
-                    nova_rota1, nova_rota2, _ = self._aplicar_troca_entre_rotas(self.rotas[i], self.rotas[j])
-                    
-                    # Calcular diferença de custo
-                    custo_atual = self.rotas[i]['custo_total'] + self.rotas[j]['custo_total']
-                    novo_custo = nova_rota1['custo_total'] + nova_rota2['custo_total']
-                    delta_custo = novo_custo - custo_atual
-                    
-                    # Decidir se aceita o movimento
-                    if delta_custo < 0 or random.random() < math.exp(-delta_custo / temperatura):
-                        self.rotas[i] = nova_rota1
-                        self.rotas[j] = nova_rota2
-                        self._recalcular_custo_total()
-                
-                elif tipo_movimento == 'realocacao_entre':
-                    # Escolher duas rotas aleatórias
-                    if len(self.rotas) < 2:
-                        continue
-                    
-                    i = random.randint(0, len(self.rotas) - 1)
-                    j = random.randint(0, len(self.rotas) - 1)
-                    
-                    while j == i:
-                        j = random.randint(0, len(self.rotas) - 1)
-                    
-                    # Aplicar realocação entre rotas
-                    nova_rota1, nova_rota2, _ = self._aplicar_realocacao_entre_rotas(self.rotas[i], self.rotas[j])
-                    
-                    # Calcular diferença de custo
-                    custo_atual = self.rotas[i]['custo_total'] + self.rotas[j]['custo_total']
-                    novo_custo = nova_rota1['custo_total'] + nova_rota2['custo_total']
-                    delta_custo = novo_custo - custo_atual
-                    
-                    # Decidir se aceita o movimento
-                    if delta_custo < 0 or random.random() < math.exp(-delta_custo / temperatura):
-                        self.rotas[i] = nova_rota1
-                        self.rotas[j] = nova_rota2
-                        self._recalcular_custo_total()
-                
-                # Atualizar melhor solução
-                if self.custo_total < melhor_custo:
-                    melhor_solucao = copy.deepcopy(self.rotas)
-                    melhor_custo = self.custo_total
-            
-            # Resfriar
-            temperatura *= taxa_resfriamento
-        
-        # Restaurar melhor solução
-        self.rotas = melhor_solucao
-        self.custo_total = melhor_custo
-    
-    def resolver(self, metodo='busca_local'):
-        """Resolve o problema usando o método especificado."""
+    def resolver(self):
+        """Resolve o problema usando busca local."""
         self.tempo_inicio = time.perf_counter_ns()
         
         # Construir solução inicial
         self.construir_solucao_inicial()
         
-        # Aplicar método de melhoria
-        if metodo == 'busca_local':
-            self.aplicar_busca_local()
-        elif metodo == 'simulated_annealing':
-            try:
-                import math
-                self.aplicar_simulated_annealing()
-            except ImportError:
-                print("Módulo math não disponível. Usando busca local.")
-                self.aplicar_busca_local()
+        # Aplicar busca local
+        self.aplicar_busca_local()
         
         self.tempo_fim = time.perf_counter_ns()
         return self.rotas
@@ -610,7 +492,7 @@ class SolucaoMelhorada:
             
         return "\n".join(saida)
 
-def processar_arquivo(arquivo_dat, pasta_saida, metodo='busca_local'):
+def processar_arquivo(arquivo_dat, pasta_saida):
     """Processa um arquivo .dat e salva o resultado na pasta de saída."""
     try:
         # Extrair o nome base do arquivo
@@ -630,7 +512,7 @@ def processar_arquivo(arquivo_dat, pasta_saida, metodo='busca_local'):
         
         # Construir solução
         solucao = SolucaoMelhorada(g, capacidade)
-        solucao.resolver(metodo)
+        solucao.resolver()
         
         # Formatar saída
         resultado = solucao.formatar_saida()
@@ -649,16 +531,10 @@ def processar_arquivo(arquivo_dat, pasta_saida, metodo='busca_local'):
 def main():
     # Verificar argumentos
     if len(sys.argv) < 2:
-        print("Uso: python solucao_etapa3.py <pasta_dados> [metodo]")
-        print("Métodos disponíveis: busca_local, simulated_annealing")
+        print("Uso: python solucao_etapa3.py <pasta_dados>")
         sys.exit(1)
     
     pasta_dados = sys.argv[1]
-    
-    # Método de melhoria (padrão: busca_local)
-    metodo = 'busca_local'
-    if len(sys.argv) > 2:
-        metodo = sys.argv[2]
     
     # Verificar se a pasta existe
     if not os.path.isdir(pasta_dados):
@@ -666,7 +542,7 @@ def main():
         sys.exit(1)
     
     # Criar pasta de saída G3Result se não existir
-    pasta_saida = "G3Result_SimulatedAnnealing"
+    pasta_saida = "G3Result"
     if not os.path.exists(pasta_saida):
         os.makedirs(pasta_saida)
         print(f"Pasta {pasta_saida} criada.")
@@ -679,14 +555,13 @@ def main():
         sys.exit(1)
     
     print(f"Encontrados {len(arquivos_dat)} arquivos .dat para processar.")
-    print(f"Método de melhoria: {metodo}")
     
     # Processar cada arquivo
     sucessos = 0
     falhas = 0
     
     for arquivo in arquivos_dat:
-        if processar_arquivo(arquivo, pasta_saida, metodo):
+        if processar_arquivo(arquivo, pasta_saida):
             sucessos += 1
         else:
             falhas += 1
