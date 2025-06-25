@@ -2,9 +2,8 @@ import os
 import sys
 import time
 import glob
-import random
 import copy
-import math  # Importação explícita do módulo math
+import math  
 sys.path.append(os.path.abspath('../etapa1/src'))
 
 from grafo import Grafo
